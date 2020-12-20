@@ -6,6 +6,7 @@ from random import Random
 
 from util.logger import logger
 from gsxt import license
+from gsxt import notifier
 
 
 class Stalker(object):
@@ -21,6 +22,8 @@ class Stalker(object):
 
     def notify(self):
         logger.info(self.result)
+        notify_resp = notifier.notify(json.dumps(self.result, ensure_ascii=True))
+        logger.info('{0} -> {1}'.format(self.id_uni, notify_resp))
 
 
 class TaskConsumer(Process):
@@ -58,13 +61,12 @@ def invoke():
     #     worker.join()
 
 
-def offer(id_uni:str):
-    result = {'success':False,'msg':''}
+def offer(id_uni: str):
+    result = {'success': False, 'msg': ''}
     try:
-        queue.put(id_uni,block=True,timeout=5)
+        queue.put(id_uni, block=True, timeout=5)
         result['success'] = True
     except Exception as e:
         logger.error(e)
         result['msg'] = e
     return result
-

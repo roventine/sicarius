@@ -176,5 +176,5 @@ def to_license_info(id_uni: str):
     return result
 
 
-l = to_license_info('91310118MA1JP08462')
-print(l)
+# l = to_license_info('91310118MA1JP08462')
+# print(l)
