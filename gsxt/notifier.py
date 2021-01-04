@@ -27,8 +27,8 @@ sign_key = '88888888'
 #
 
 
-# url_to_notify = 'https://app.sh.abchina.com/qht/EtpsInfoRecv.do'
-url_to_notify = 'http://223.72.214.168/qht/EtpsInfoRecv.do'
+url_to_notify = 'https://app.sh.abchina.com/qht/EtpsInfoRecv.do'
+# url_to_notify = 'http://223.72.214.168/qht/EtpsInfoRecv.do'
 
 headers = {
     'X-Requested-With': 'XMLHttpRequest',

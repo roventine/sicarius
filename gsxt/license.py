@@ -138,7 +138,7 @@ def to_shareholder_list(pripid,
 
 
 def to_license_info(id_uni: str):
-    result = {'success': False, 'msg': ''}
+    result = {'success': False,'id_uni':id_uni, 'msg': ''}
     query_result = is_exist_corp(id_uni)
     if query_result['success']:
         data = query_result['object']
