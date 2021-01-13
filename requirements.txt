@@ -3,5 +3,6 @@ Logbook==1.5.3
 requests==2.25.0
 uvicorn==0.13.0
 pycryptodome
-cryptography
-lxml
+cryptography~=3.3.1
+lxml~=4.6.2
+schedule~=0.6.0

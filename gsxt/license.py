@@ -138,7 +138,7 @@ def to_shareholder_list(pripid,
 
 
 def to_license_info(id_uni: str):
-    result = {'success': False,'id_uni':id_uni, 'msg': ''}
+    result = {'success': False, 'id_uni': id_uni, 'msg': ''}
     query_result = is_exist_corp(id_uni)
     if query_result['success']:
         data = query_result['object']
@@ -160,7 +160,7 @@ def to_license_info(id_uni: str):
                 if shareholder_result['success']:
                     lic['shareholder'] = to_inv_list(shareholder_result['object'])
                     result['license'] = lic
-                    result['msg']  = 'by all means , it shall be done -- by zzz, solo in dark'
+                    result['msg'] = 'by all means , it shall be done -- by zzz, solo in dark'
                     result['success'] = True
                     return result
                 else:
@@ -174,7 +174,6 @@ def to_license_info(id_uni: str):
         result['msg'] = query_result['object']
 
     return result
-
 
 # l = to_license_info('91310118MA1JP08462')
 # print(l)
