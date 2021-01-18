@@ -38,3 +38,6 @@ def to_last_month_end(f):
     return to_string(d,f)
 
 
+def to_yesterday():
+    return to_date_relative(to_now(),-1)
+

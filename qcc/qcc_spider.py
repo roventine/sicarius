@@ -8,6 +8,7 @@ import random
 import requests
 
 import util.files as files
+import util.datetimes as dt
 
 APP_NAME = 'SICARIUS'
 APP_KEY = binascii.b2a_base64(APP_NAME.encode())
@@ -90,7 +91,7 @@ class QCCSpider:
 
     @staticmethod
     def to_date(secs):
-        return time.strftime('%Y-%m-%d',time.localtime(secs))
+        return time.strftime('%Y-%m-%d', time.localtime(secs))
 
     @staticmethod
     def to_essential_result(corp: dict):
@@ -100,7 +101,7 @@ class QCCSpider:
             'CreditCode': corp['CreditCode'],
             'OperName': corp['OperName'],
             'Status': corp['Status'],
-            'StartDate': QCCSpider.to_date(corp['StartDate']/1000),
+            'StartDate': QCCSpider.to_date(corp['StartDate'] / 1000),
             'Address': corp['Address'],
             'RegistCapi': corp['RegistCapi'],
             'ContactNumber': corp['ContactNumber'],
@@ -149,7 +150,8 @@ class QCCSpider:
         return self
 
     def get_ready_to_ship(self):
-        data_file_name = files.to_data_file(APP_NAME, 'CORP_INFO', '1G')
+        yesterday = dt.to_string(dt.to_yesterday(), "%Y%m%d")
+        data_file_name = files.to_data_file(APP_NAME, 'CORP_INFO', '1G', yesterday)
         data_file_path = files.to_data_path(dir, data_file_name)
         gz, _ = files.ready_to_ship(data_file_path, self.result_list)
         self.gz = gz
@@ -180,7 +182,3 @@ class QCCSpider:
             .to_last_day_establish_corp_list() \
             .get_ready_to_ship() \
             .ship_to_intranet()
-
-
-
-

@@ -5,7 +5,7 @@ from qcc.qcc_spider import QCCSpider
 
 
 class RoutineWorker(threading.Thread):
-
+ 
     def __init__(self):
         threading.Thread.__init__(self)
 

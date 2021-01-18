@@ -3,8 +3,12 @@ import util.datetimes as dt
 import os
 
 
-def to_data_file(a, f, t):
-    return '{}-{}-{}-{}-{}'.format('09', a, f, t,dt.to_string(dt.to_now(),'%Y%m%d'))
+def to_data_file(a, f, t,d):
+    return '{}-{}-{}-{}-{}'.format('09',
+                                   a,
+                                   f,
+                                   t,
+                                   d)
 
 
 def to_data_path(p, f):
