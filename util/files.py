@@ -1,9 +1,10 @@
 import gzip
 import util.datetimes as dt
-import os
+import os, json
+from ruamel import yaml
 
 
-def to_data_file(a, f, t,d):
+def to_data_file(a, f, t, d):
     return '{}-{}-{}-{}-{}'.format('09',
                                    a,
                                    f,
@@ -55,12 +56,12 @@ def to_data(f, jsons):
 def ready_to_ship(f, jsons):
     data = to_data(f, jsons)
     gz = to_gz(data)
-    ctl = touch_ctl(gz)
-    return [gz, ctl]
+    # ctl = touch_ctl(gz)
+    return [gz, '']
 
 
 def to_data_date(f):
-    return dt.to_date(str(f).split('-')[3],'%Y%m%d')
+    return dt.to_date(str(f).split('-')[3], '%Y%m%d')
 
 
 def to_matched_list(days):
@@ -68,9 +69,29 @@ def to_matched_list(days):
     files = os.listdir('data')
     for file in files:
         data_date = to_data_date(file)
-        if dt.to_days_diff(data_date,dt.to_now())>=days:
+        if dt.to_days_diff(data_date, dt.to_now()) >= days:
             matched_files.append(file)
 
 
 def delete_file(f):
     return os.remove(f)
+
+
+def to_json(p, l):
+    with open(p, 'w', encoding='utf-8') as f:
+        json.dump(l, f, ensure_ascii=False)
+
+
+def of_json(p):
+    with open(p, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+
+def to_yaml(p, d):
+    with open(p, 'w', encoding='utf-8') as f:
+        yaml.dump(d, f, Dumper=yaml.RoundTripDumper)
+
+
+def of_yaml(p):
+    with open(p, 'r', encoding='utf-8') as f:
+        return yaml.load(f.read(), Loader=yaml.RoundTripLoader)

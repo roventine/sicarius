@@ -13,7 +13,7 @@ class RoutineWorker(threading.Thread):
         print('start RoutineWorker')
         schedule.default_scheduler.every() \
             .day \
-            .at("10:33:50") \
+            .at("09:48:08") \
             .do(QCCSpider().routine_work)
 
         while True:
@@ -32,6 +32,6 @@ class KeepAliveWorker(threading.Thread):
 
 
 routine_worker = RoutineWorker()
-keep_alive_worker = KeepAliveWorker()
+# keep_alive_worker = KeepAliveWorker()
 routine_worker.start()
-keep_alive_worker.start()
+# keep_alive_worker.start()

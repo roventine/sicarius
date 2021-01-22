@@ -9,9 +9,9 @@ import requests
 
 import util.files as files
 import util.datetimes as dt
+import util.data_channel_api as channel_api
 
 APP_NAME = 'SICARIUS'
-APP_KEY = binascii.b2a_base64(APP_NAME.encode())
 dir = os.path.dirname(os.path.abspath(__file__)) + '/data/'
 
 
@@ -158,24 +158,8 @@ class QCCSpider:
         return self
 
     def ship_to_intranet(self):
-
-        mem = 'On the word of no one'
-        url = 'https://dapp.sh.abchina.com/nullius/api/v1/datachannel/file/'
-        # url = 'http://localhost/api/v1/datachannel/file'
-
-        sign = hashlib.sha256('{0}{1}'.format(mem, APP_KEY).encode()).hexdigest()
-        print(sign)
-
-        file = {'file': open(self.gz, 'rb')}
-
-        data = {
-            'sign': sign
-        }
-        r = requests.post(url, files=file, data=data)
-        if r.status_code == 200:
-            print(r.json())
-        else:
-            print(r.status_code)
+        channel_api.transmit(self.gz)
+        return self
 
     def routine_work(self):
         self.init_conf() \
