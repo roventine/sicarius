@@ -56,8 +56,8 @@ def to_data(f, jsons):
 def ready_to_ship(f, jsons):
     data = to_data(f, jsons)
     gz = to_gz(data)
-    # ctl = touch_ctl(gz)
-    return [gz, '']
+    ctl = touch_ctl(gz)
+    return [gz, ctl]
 
 
 def to_data_date(f):

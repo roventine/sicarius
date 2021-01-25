@@ -13,7 +13,7 @@ class RoutineWorker(threading.Thread):
         print('start RoutineWorker')
         schedule.default_scheduler.every() \
             .day \
-            .at("09:48:08") \
+            .at("08:08:08") \
             .do(QCCSpider().routine_work)
 
         while True:

@@ -10,10 +10,10 @@ SIGN = hashlib.sha256('{0}{1}'.format(MEM, APP_KEY).encode()).hexdigest()
 
 
 def transmit(f):
-    print('{0} -> {1}', URL_CHANNEL, f)
+    print('{0} -> {1}'.format(URL_CHANNEL, f))
     file = {'file': open(f, 'rb')}
     data = {
         'sign': SIGN
     }
     r = requests.post(URL_CHANNEL, files=file, data=data)
-    print('{0} -> {1} -> {2}', URL_CHANNEL, f, r.status_code)
+    print('{0} -> {1} -> {2}'.format( URL_CHANNEL, f, r.status_code))

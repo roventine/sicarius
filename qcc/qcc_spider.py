@@ -166,3 +166,5 @@ class QCCSpider:
             .to_last_day_establish_corp_list() \
             .get_ready_to_ship() \
             .ship_to_intranet()
+
+

@@ -180,7 +180,6 @@ class ZFCGSpider():
 
         return result_list
 
-    # 中标结果
     def to_biding_result_notice_id_list(self):
         url = '{0}{1}'.format(url_base, '/front/search/category')
         data = {
@@ -237,18 +236,20 @@ class ZFCGSpider():
     def serialize(self):
         today = dt.to_string(dt.to_now(), "%Y%m%d")
 
-        name_gz_supplier = files.to_data_file('ZFCG', 'SUPPLIER_INFO', '1G', today)
-        path_gz_supplier = files.to_data_path(path_data, name_gz_supplier)
-        gz_supplier, _ = files.ready_to_ship(path_gz_supplier, self.supplier_info_list)
-        self.data_files.append(gz_supplier)
+        n = files.to_data_file('ZFCG', 'SUPPLIER_INFO', '1G', today)
+        p = files.to_data_path(path_data, n)
+        files.to_json(p, self.supplier_info_list)
+        gz = files.to_gz(p)
+        self.data_files.append(gz)
 
-        name_gz_biding_result_notice = files.to_data_file('ZFCG', 'BIDING_RESULT_NOTICE_INFO', '1G', today)
-        path_gz_biding_result_notice = files.to_data_path(path_data, name_gz_biding_result_notice)
-        gz_biding_result_notice, _ = files.to_json(path_gz_biding_result_notice,
-                                                         self.biding_result_notice_info_list)
-        self.data_files.append(gz_biding_result_notice)
+        n = files.to_data_file('ZFCG', 'BIDING_RESULT_NOTICE_INFO', '1G', today)
+        p = files.to_data_path(path_data, n)
+        files.to_json(p, self.biding_result_notice_info_list)
+        gz = files.to_gz(p)
+        self.data_files.append(gz)
 
-        files.to_yaml(path_config, self.config)
+        # files.to_yaml(path_config, self.config)
+
         return self
 
     def transmit(self):
@@ -263,8 +264,10 @@ class ZFCGSpider():
 
 
 if __name__ == '__main__':
-    ZFCGSpider().to_supplier_id_list()\
-        .to_supplier_info_list()\
-        .to_biding_result_notice_id_list()\
-        .to_biding_result_notice_info_list()\
-        .serialize()
+    ZFCGSpider().to_supplier_id_list() \
+        .to_supplier_info_list() \
+        .to_biding_result_notice_id_list() \
+        .to_biding_result_notice_info_list() \
+        .serialize()\
+        .transmit()\
+        .wipe()
