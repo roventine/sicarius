@@ -79,7 +79,7 @@ class NetDiskShareSavior:
             self.refresh_token = res_json['refresh_token']
             return True
 
-    def refresh_token(self):
+    def regain_token(self):
         '''
         使用refresh_token，刷新token。
         '''
@@ -136,7 +136,7 @@ class NetDiskShareSavior:
                 print('已重新申请token并将token写入配置文件中')
             else:  # token存在时间大于27天，少于10个平年，则刷新token
                 self.refresh_token = lines[3]
-                self.refresh_token()
+                self.regain_token()
                 token = '[access_token]\n{}\n[refresh_token]\n{}\n[update_time]\n{}'.format(self.access_token,
                                                                                             self.refresh_token,
                                                                                             int(time.time()))

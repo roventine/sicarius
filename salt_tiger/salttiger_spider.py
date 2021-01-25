@@ -33,7 +33,7 @@ class SaltTigerSpider():
         r = requests.get(url=self.url_base, headers=self.headers)
         h = etree.HTML(r.text)
         a = h.xpath('//*[@id="nav-below"]/div/a[3]/@href')[0]
-        b = h.xpath('//*[@class="entry-title"]/a/text()')
+        b = h.xpath('//div[@class="entry-content"]/p/strong/a/@href')
         n = re.search(r'https://salttiger\.com/page/([0-9].+?)/', a)
         if n:
             self.current_page_count = n.group(1)
@@ -56,6 +56,12 @@ class SaltTigerSpider():
             a = ','.join(part.xpath('a/@href'))
             t = ','.join(part.xpath('text()'))
 
+            href_list = a.split(',')
+
+            if href_list == self.last_archive:
+                print('reach last time archive,return  ')
+                return archives, True
+
             m = re.search(r'https://pan\.baidu\.com/s/(.+?)$', a, re.M | re.I)
             if m:
                 url = m.group(0)
@@ -65,23 +71,28 @@ class SaltTigerSpider():
                 else:
                     code = ''
                 archives[url] = code
-        return archives
+        return archives, False
 
     def do_task_list(self):
+
+
         dir = '/sample/salt_tiger'
-        api_key = 'ldERCi3W8reD1m18tuI8iaQPxc2ybD64'
-        secret_key = 'fYHo0G6ctK6KEnnfgE4WIu107zkqVgpK'
+        api_key = 'GpcplwqeGjbHLfozPQzxGAkAj7BmeokG'
+        secret_key = 'QGGNSroqG5ByYPZOBsyO0SLgicov7MQV'
 
         page_count = int(self.current_page_count) - self.last_page_count
-        for i in range(page_count + 1):
-            archives = SaltTigerSpider().to_archives(i)
+        for i in range(page_count + 2)[1:]:
+            archives, is_reach = self.to_archives(i)
             for k, v in archives.items():
                 NetDiskShareSavior(api_key, secret_key, k, v, dir)
+                # print(k,v)
+            if is_reach:
+                return self
         return self
 
 
 if __name__ == '__main__':
-    SaltTigerSpider().init_conf()\
-        .init_task_list()\
-        .do_task_list()\
-        .save_conf()
+    SaltTigerSpider().init_conf() \
+        .init_task_list() \
+        .do_task_list() \
+        # .save_conf()
