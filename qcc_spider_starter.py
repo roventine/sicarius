@@ -32,6 +32,5 @@ class KeepAliveWorker(threading.Thread):
 
 
 routine_worker = RoutineWorker()
-# keep_alive_worker = KeepAliveWorker()
 routine_worker.start()
-# keep_alive_worker.start()
+
