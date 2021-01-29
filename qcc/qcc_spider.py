@@ -52,6 +52,7 @@ class QCCSpider:
         self.session = requests.session()
         self.result_list = []
         self.gz = ''
+        self.success = False
 
     def init_conf(self):
         with open(self.conf, 'r')as f:
@@ -161,10 +162,27 @@ class QCCSpider:
         channel_api.transmit(self.gz)
         return self
 
+    def work_once(self):
+        try:
+            self.init_conf() \
+                .to_last_day_establish_corp_list() \
+                .get_ready_to_ship() \
+                .ship_to_intranet()
+            return True
+        except Exception as e:
+            print(str(e))
+            return False
+
     def routine_work(self):
-        self.init_conf() \
-            .to_last_day_establish_corp_list() \
-            .get_ready_to_ship() \
-            .ship_to_intranet()
+        count = 1
+        while True:
+            print('do routine work {0} times'.format(str(count)))
+            if self.work_once():
+                break
+            else:
+                time.sleep(60)
+                count = count + 1
+                self.work_once()
+
 
 

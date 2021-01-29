@@ -77,8 +77,8 @@ class SaltTigerSpider():
 
 
         dir = '/sample/salt_tiger'
-        api_key = 'GpcplwqeGjbHLfozPQzxGAkAj7BmeokG'
-        secret_key = 'QGGNSroqG5ByYPZOBsyO0SLgicov7MQV'
+        api_key = 'ldERCi3W8reD1m18tuI8iaQPxc2ybD64'
+        secret_key = 'fYHo0G6ctK6KEnnfgE4WIu107zkqVgpK'
 
         page_count = int(self.current_page_count) - self.last_page_count
         for i in range(page_count + 2)[1:]:

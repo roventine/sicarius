@@ -21,14 +21,14 @@ class RoutineWorker(threading.Thread):
             time.sleep(1)
 
 
-class KeepAliveWorker(threading.Thread):
-
-    def __init__(self):
-        threading.Thread.__init__(self)
-
-    def run(self):
-        print('start KeepAliveWorker')
-        QCCSpider().keep_me_alive()
+# class KeepAliveWorker(threading.Thread):
+#
+#     def __init__(self):
+#         threading.Thread.__init__(self)
+#
+#     def run(self):
+#         print('start KeepAliveWorker')
+#         QCCSpider().keep_me_alive()
 
 
 routine_worker = RoutineWorker()
