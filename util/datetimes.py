@@ -35,9 +35,12 @@ def to_last_month_end(f):
     d = datetime.date(day=1,
                       month=datetime.datetime.now().month,
                       year=datetime.datetime.now().year) - timedelta(days=1)
-    return to_string(d,f)
+    return to_string(d, f)
 
 
 def to_yesterday():
-    return to_date_relative(to_now(),-1)
+    return to_date_relative(to_now(), -1)
 
+
+def of_seconds(s):
+    return time.localtime(s)

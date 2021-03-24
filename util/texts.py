@@ -1,7 +1,7 @@
 import re
 
 
-def to_char(htmlstr):
+def to_char(html):
     CHAR_ENTITIES = {'nbsp': ' ', '160': ' ',
                      'lt': '<', '60': '<',
                      'gt': '>', '62': '>',
@@ -9,18 +9,18 @@ def to_char(htmlstr):
                      'quot': '"', '34': '"', }
 
     re_charEntity = re.compile(r'&#?(?P<name>\w+);')
-    sz = re_charEntity.search(htmlstr)
+    sz = re_charEntity.search(html)
     while sz:
         entity = sz.group()  # entity全称，如&gt;
         key = sz.group('name')  # 去除&;后entity,如&gt;为gt
         try:
-            htmlstr = re_charEntity.sub(CHAR_ENTITIES[key], htmlstr, 1)
-            sz = re_charEntity.search(htmlstr)
+            html = re_charEntity.sub(CHAR_ENTITIES[key], html, 1)
+            sz = re_charEntity.search(html)
         except KeyError:
             # 以空串代替
-            htmlstr = re_charEntity.sub('', htmlstr, 1)
-            sz = re_charEntity.search(htmlstr)
-    return htmlstr
+            html = re_charEntity.sub('', html, 1)
+            sz = re_charEntity.search(html)
+    return html
 
 
 def to_text(html):

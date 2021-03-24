@@ -1,11 +1,18 @@
-import requests
-import os, json, math, sys, time, re
+import json
+import math
+import os
 from multiprocessing import Pool
+
+import requests
 from lxml import etree
-import util.files as files
-import util.texts as texts
+
+import util.datachannel_client as data_channel
 import util.datetimes as dt
-import util.data_channel_api as data_channel
+import util.files as files
+import util.progress_bar as bar
+import util.texts as texts
+from constant import APP_NAME
+from util.logger import logger
 
 path_base = os.path.dirname(os.path.abspath(__file__))
 file_config = 'config.yaml'
@@ -32,16 +39,6 @@ url_ref = {
     'legal': '/api/core/remote/supplierLegal',
     'certificates': '/api/core/remote/supplierCertificates'
 }
-
-
-def show_progress_bar(p):
-    p_s = "%.2f%%" % (p * 100)
-    n = round(p * 50)
-    s = ('#' * n).ljust(50, '-')
-    f = sys.stdout
-    f.write(p_s.ljust(8, ' ') + '[' + s + ']')
-    f.flush()
-    f.write('\r')
 
 
 # 政府采购爬虫
@@ -101,8 +98,8 @@ class ZFCGSpider():
                 r = requests.get(url=url, headers=headers, params=params)
                 if r.status_code == 200:
                     supplier[k] = r.json()
-        except Exception as ignored:
-            print(ignored)
+        except Exception as e:
+            print(e)
             pass
         return supplier
 
@@ -114,14 +111,14 @@ class ZFCGSpider():
 
         for i, supplier in enumerate(self.supplier_id_list):
             result.append(pool.apply_async(func=self.to_supplier_info, args=(supplier,)))
-            show_progress_bar((i + 1) / total)
+            bar.show((i + 1) / total)
 
         pool.close()
         pool.join()
 
         for i, res in enumerate(result):
             self.supplier_info_list.append(res.get())
-            show_progress_bar((i + 1) / total)
+            bar.show((i + 1) / total)
 
         return self
 
@@ -129,7 +126,7 @@ class ZFCGSpider():
         total = len(self.supplier_id_list)
         for i, supplier in enumerate(self.supplier_id_list):
             self.supplier_info_list.append(self.to_supplier_info(supplier))
-            show_progress_bar((i + 1) / total)
+            bar.show((i + 1) / total)
         return self
 
     @staticmethod
@@ -164,7 +161,7 @@ class ZFCGSpider():
         pool = Pool(os.cpu_count())
         for page_index in range(page_count + 1)[1:]:
             future_list.append(pool.apply_async(func=self.to_biding_result_notice_id_partial, args=(page_index,)))
-            show_progress_bar(page_index / page_count)
+            bar.show(page_index / page_count)
 
         pool.close()
         pool.join()
@@ -176,7 +173,7 @@ class ZFCGSpider():
                 pass
             else:
                 result_list = result_list + result['data']
-            show_progress_bar((i + 1) / page_count)
+            bar.show((i + 1) / page_count)
 
         return result_list
 
@@ -199,7 +196,7 @@ class ZFCGSpider():
         data['pageSize'] = page_size
         page_count = math.ceil(total / page_size)
         for i in range(page_count + 1)[1:]:
-            show_progress_bar(i / page_count)
+            bar.show(i / page_count)
             data['pageNo'] = i
             r = requests.post(url=url, json=data, headers=headers)
             if r.status_code == 200:
@@ -219,7 +216,7 @@ class ZFCGSpider():
 
         total = len(self.biding_result_notice_id_list)
         for i, bid_result in enumerate(self.biding_result_notice_id_list):
-            show_progress_bar((i + 1) / total)
+            bar.show((i + 1) / total)
             result_info = bid_result['_source']
             url_suffix = result_info['url']
             url = '{0}{1}'.format(url_base, url_suffix)
@@ -254,7 +251,7 @@ class ZFCGSpider():
 
     def transmit(self):
         for gz in self.data_files:
-            data_channel.transmit(gz)
+            data_channel.ship(gz)
         return self
 
     def wipe(self):
@@ -264,10 +261,11 @@ class ZFCGSpider():
 
 
 if __name__ == '__main__':
-    ZFCGSpider().to_supplier_id_list() \
+    ZFCGSpider() \
+        .to_supplier_id_list() \
         .to_supplier_info_list() \
         .to_biding_result_notice_id_list() \
         .to_biding_result_notice_info_list() \
-        .serialize()\
-        .transmit()\
+        .serialize() \
+        .transmit() \
         .wipe()

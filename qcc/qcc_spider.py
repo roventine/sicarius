@@ -1,28 +1,18 @@
-import binascii
-import hashlib
 import os
-import sys
+import random
 import time
 
-import random
 import requests
 
-import util.files as files
+import util.datachannel_client as channel_api
 import util.datetimes as dt
-import util.data_channel_api as channel_api
+import util.files as files
+import util.progress_bar as bar
+from constant import APP_NAME
+from util.logger import logger
 
-APP_NAME = 'SICARIUS'
-dir = os.path.dirname(os.path.abspath(__file__)) + '/data/'
-
-
-def show_progress_bar(percent):
-    percent_str = "%.2f%%" % (percent * 100)
-    n = round(percent * 50)
-    s = ('#' * n).ljust(50, '-')
-    f = sys.stdout
-    f.write(percent_str.ljust(8, ' ') + '[' + s + ']')
-    f.flush()
-    f.write('\r')
+QCC_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+QCC_DATA_DIR = os.path.join(QCC_BASE_DIR, 'data')
 
 
 class QCCSpider:
@@ -44,7 +34,7 @@ class QCCSpider:
 
     url_base = 'https://www.qcc.com/'
 
-    conf = os.path.dirname(__file__) + '/qcc.conf'
+    conf = QCC_BASE_DIR + '/qcc.conf'
 
     def __init__(self):
         self.username = ''
@@ -63,36 +53,9 @@ class QCCSpider:
         self.headers['cookie'] = lines[5]
         return self
 
-    def keep_me_alive(self):
-        rand = random.Random()
-        url = 'https://www.qcc.com/api/elib/getNewCompany'
-        params = {
-            'flag': '',
-            'industry': '',
-            'isSortAsc': 'false',
-            'pageIndex': '1',
-            'pageSize': '20',
-            'province': 'SH',
-            'sortField': 'startdate',
-            'startDateBegin': '',
-            'startDateEnd': ''
-        }
-        while True:
-            r = requests.get(url=url, headers=self.headers, params=params)
-            if r.status_code == 200:
-                if r.text.find('Paging') > 0:
-                    sleep_secs = rand.randint(1, 10) * 10 * 60
-                    print('still alive , sleep {0} seconds'.format(str(sleep_secs)))
-                    time.sleep(sleep_secs)
-                else:
-                    break
-            else:
-                print(' keep-me-alive error - > {0}'.format(r.status_code))
-                break
-
     @staticmethod
-    def to_date(secs):
-        return time.strftime('%Y-%m-%d', time.localtime(secs))
+    def to_date(s):
+        return dt.to_string(dt.of_seconds(s / 1000), '%Y-%m-%d')
 
     @staticmethod
     def to_essential_result(corp: dict):
@@ -102,7 +65,7 @@ class QCCSpider:
             'CreditCode': corp['CreditCode'],
             'OperName': corp['OperName'],
             'Status': corp['Status'],
-            'StartDate': QCCSpider.to_date(corp['StartDate'] / 1000),
+            'StartDate': QCCSpider.to_date(corp['StartDate']),
             'Address': corp['Address'],
             'RegistCapi': corp['RegistCapi'],
             'ContactNumber': corp['ContactNumber'],
@@ -112,7 +75,7 @@ class QCCSpider:
             'Industry': corp['Industry']['Industry']
         }
 
-    def to_last_day_establish_corp_list(self):
+    def to_last_day_established_corp_list(self):
         rand = random.Random()
         url = 'https://www.qcc.com/api/elib/getNewCompany'
         params = {
@@ -139,7 +102,7 @@ class QCCSpider:
         page_count = total // 20 + 1
 
         for i in range(page_count + 1)[1:]:
-            show_progress_bar(i / page_count)
+            bar.show(i / page_count)
             params['pageIndex'] = str(i)
             r = requests.get(url=url, headers=self.headers, params=params)
             if r.status_code == 200:
@@ -150,7 +113,7 @@ class QCCSpider:
 
         return self
 
-    def get_ready_to_ship(self):
+    def serialize(self):
         yesterday = dt.to_string(dt.to_yesterday(), "%Y%m%d")
         data_file_name = files.to_data_file(APP_NAME, 'CORP_INFO', '1G', yesterday)
         data_file_path = files.to_data_path(dir, data_file_name)
@@ -162,27 +125,26 @@ class QCCSpider:
         channel_api.transmit(self.gz)
         return self
 
-    def work_once(self):
+    def invoke(self):
         try:
             self.init_conf() \
-                .to_last_day_establish_corp_list() \
-                .get_ready_to_ship() \
+                .to_last_day_established_corp_list() \
+                .serialize() \
                 .ship_to_intranet()
             return True
         except Exception as e:
             print(str(e))
             return False
 
-    def routine_work(self):
+    def invoke_util_success(self):
         count = 1
         while True:
-            print('do routine work {0} times'.format(str(count)))
-            if self.work_once():
+            logger.info('do routine work {0} times'.format(str(count)))
+            if self.invoke():
                 break
             else:
                 time.sleep(60)
                 count = count + 1
-                self.work_once()
-
-
-
+                if count >= 5 :
+                    channel_api.sms()
+                self.invoke()

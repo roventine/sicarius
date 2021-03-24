@@ -68,5 +68,5 @@ def offer(id_uni: str):
         result['success'] = True
     except Exception as e:
         logger.error(e)
-        result['msg'] = e
+        result['msg'] = str(e)
     return result
