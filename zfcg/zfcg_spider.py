@@ -6,7 +6,7 @@ from multiprocessing import Pool
 import requests
 from lxml import etree
 
-import util.datachannel_client as data_channel
+import util.datachannel_api as data_channel
 import util.datetimes as dt
 import util.files as files
 import util.progress_bar as bar
